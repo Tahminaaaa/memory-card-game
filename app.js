@@ -1,32 +1,82 @@
-const words = {
-    glücklich: ['fröhlich'],
-    traurig: ['unglücklich'],
-    schnell: ['rasant'],
-    langsam: ['gemächlich'],
-    schön: ['hübsch'],
-    hässlich: ['unattraktiv']
-};
+document.addEventListener("DOMContentLoaded", () => {
+    const cards = document.querySelectorAll(".box");
+    const timeDisplay = document.querySelector(".time");
+    const scoreDisplay = document.querySelector(".score");
+    const resultScreen = document.querySelector(".result");
+    const resultMessage = resultScreen.querySelector("p");
+    const playAgainBtn = document.querySelector(".again");
 
+    let flippedCards = [];
+    let matchedPairs = 0;
+    let score = 0;
+    let startTime;
+    let timer;
 
-let allWords = [];
+    const words = [
+        "Haus", "Buch", "Auto", "Baum", "Hund", "Katze",
+        "Haus", "Buch", "Auto", "Baum", "Hund", "Katze"
+    ];
 
-for (let key in words) {
-    allWords.push(key);
-    allWords.push(...words[key]);
-}
+    function shuffle(array) {
+        for (let i = array.length - 1; i > 0; i--) {
+            let j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+    }
 
-allWords.sort(() => Math.random() - 0.5);
+    function startGame() {
+        shuffle(words);
+        cards.forEach((card, index) => {
+            card.querySelector(".back").textContent = words[index];
+            card.addEventListener("click", flipCard);
+        });
+        startTime = Date.now();
+        timer = setInterval(updateTime, 1000);
+    }
 
-const boxes = document.querySelectorAll(".box")
+    function flipCard() {
+        if (flippedCards.length < 2 && !this.classList.contains("flip")) {
+            this.classList.add("flip");
+            flippedCards.push(this);
+        }
 
-boxes.forEach((box, index) => {
-    const card = box.querySelector(".card");
-    card.innerHTML = `
-            <div class="front"><img src="question mark.jpg" alt="questionmark" style="height: 100px; width:100px;"></div>
-            <div class="back" style="font-size: 15px;" >${allWords[index]}</div>
-    `;
-    box.addEventListener("click", function () {
-        this.classList.toggle("flip");
-    });
+        if (flippedCards.length === 2) {
+            setTimeout(checkMatch, 500);
+        }
+    }
+
+    function checkMatch() {
+        let [card1, card2] = flippedCards;
+        let word1 = card1.querySelector(".back").textContent;
+        let word2 = card2.querySelector(".back").textContent;
+
+        if (word1 === word2) {
+            matchedPairs++;
+            score += 10;
+            flippedCards = [];
+            if (matchedPairs === words.length / 2) {
+                endGame();
+            }
+        } else {
+            card1.classList.remove("flip");
+            card2.classList.remove("flip");
+            score -= 2;
+            flippedCards = [];
+        }
+        scoreDisplay.textContent = score;
+    }
+
+    function updateTime() {
+        let elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+        timeDisplay.textContent = elapsedTime;
+    }
+
+    function endGame() {
+        clearInterval(timer);
+        resultScreen.style.display = "block";
+        resultMessage.textContent = `You won ${score} points in ${timeDisplay.textContent} seconds`;
+        playAgainBtn.addEventListener("click", () => location.reload());
+    }
+
+    startGame();
 });
-

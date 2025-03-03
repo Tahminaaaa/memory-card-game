@@ -78,6 +78,7 @@ body {
     transform: rotateY(180deg);
 }
 
-.result {
+.bravo,
+.again {
     visibility: hidden;
 }
