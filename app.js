@@ -25,6 +25,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function startGame() {
+        loadScore();
         shuffle(words);
         cards.forEach((card, index) => {
             card.querySelector(".back").textContent = words[index];
@@ -52,16 +53,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
         if (word1 === word2) {
             matchedPairs++;
-            score += 10;
+            score += 5;
             flippedCards = [];
+            saveScore();
             if (matchedPairs === words.length / 2) {
                 endGame();
             }
         } else {
             card1.classList.remove("flip");
             card2.classList.remove("flip");
-            score -= 2;
             flippedCards = [];
+            saveScore();
         }
         scoreDisplay.textContent = score;
     }
@@ -73,9 +75,34 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function endGame() {
         clearInterval(timer);
+        saveBestScore();
         resultScreen.style.display = "block";
         resultMessage.textContent = `You won ${score} points in ${timeDisplay.textContent} seconds`;
-        playAgainBtn.addEventListener("click", () => location.reload());
+        playAgainBtn.addEventListener("click", resetGame);
+    }
+
+    function saveScore() {
+        localStorage.setItem("currentScore", score);
+    }
+
+    function loadScore() {
+        const savedScore = localStorage.getItem("currentScore");
+        if (savedScore !== null) {
+            score = parseInt(savedScore);
+            scoreDisplay.textContent = score;
+        }
+    }
+
+    function saveBestScore() {
+        let bestScore = localStorage.getItem("bestScore");
+        if (!bestScore || score > parseInt(bestScore)) {
+            localStorage.setItem("bestScore", score);
+        }
+    }
+
+    function resetGame() {
+        localStorage.removeItem("currentScore");
+        location.reload();
     }
 
     startGame();
