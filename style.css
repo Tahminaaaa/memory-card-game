@@ -78,7 +78,44 @@ body {
     transform: rotateY(180deg);
 }
 
-.bravo,
-.again {
+.bravo {
     visibility: hidden;
+}
+
+.result {
+    display: none;
+    justify-content: center;
+    align-items: center;
+    background: white;
+    color: black;
+    font-size: 20px;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    padding: 20px;
+    border-radius: 10px;
+    z-index: 10;
+    filter: none;
+}
+
+.blur {
+    filter: blur(5px);
+}
+
+.again {
+    border-radius: 1.5em;
+    cursor: pointer;
+    background-color: #dedaeb;
+    padding: 1em;
+    width: 8em;
+
+}
+
+.again .active {
+    visibility: visible;
+}
+
+.result .score {
+    display: none;
 }

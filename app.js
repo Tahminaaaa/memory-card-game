@@ -1,4 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
+
     const cards = document.querySelectorAll(".box");
     const timeDisplay = document.querySelector(".time");
     const scoreDisplay = document.querySelector(".score");
@@ -25,7 +26,11 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function startGame() {
-        loadScore();
+        score = 0;
+        saveScore();
+        scoreDisplay.textContent = score;
+        matchedPairs = 0; // Reset matched pairs if restarting
+
         shuffle(words);
         cards.forEach((card, index) => {
             card.querySelector(".back").textContent = words[index];
@@ -54,18 +59,23 @@ document.addEventListener("DOMContentLoaded", () => {
         if (word1 === word2) {
             matchedPairs++;
             score += 5;
-            flippedCards = [];
             saveScore();
+            flippedCards = [];
+
+            console.log("New Score:", score);
+
             if (matchedPairs === words.length / 2) {
+                console.log("Before endGame() - Score:", score);
                 endGame();
             }
         } else {
-            card1.classList.remove("flip");
-            card2.classList.remove("flip");
+            setTimeout(() => {
+                card1.classList.remove("flip");
+                card2.classList.remove("flip");
+            }, 500);
             flippedCards = [];
-            saveScore();
         }
-        scoreDisplay.textContent = score;
+        // scoreDisplay.textContent = score;
     }
 
     function updateTime() {
@@ -75,11 +85,24 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function endGame() {
         clearInterval(timer);
+        saveScore();
         saveBestScore();
-        resultScreen.style.display = "block";
+        let elapsedTime = Math.floor((Date.now() - startTime) / 1000);
+        resultScreen.style.display = "flex";
+        resultScreen.style.justifyContent = "center";
+        resultScreen.style.alignItems = "center";
         resultMessage.textContent = `You won ${score} points in ${timeDisplay.textContent} seconds`;
-        playAgainBtn.addEventListener("click", resetGame);
+        playAgainBtn.style.display = "flex";
+        playAgainBtn.classList.add("active")
+        playAgainBtn.style.visibility = "visible";
+        document.querySelector(".cards").classList.add("blur");
     }
+
+    playAgainBtn.addEventListener("click", () => {
+        // Corrected the selector here:
+        document.querySelector(".cards").classList.remove("blur");
+        resetGame();
+    });
 
     function saveScore() {
         localStorage.setItem("currentScore", score);
@@ -100,9 +123,17 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    function resetCards() {
+        cards.forEach(card => card.classList.remove("flip"));
+        startGame();
+    }
+
     function resetGame() {
         localStorage.removeItem("currentScore");
-        location.reload();
+        playAgainBtn.classList.remove("active")
+        resultScreen.style.display = "none";
+        document.querySelector(".cards").classList.remove("blur")
+        resetCards();
     }
 
     startGame();
